@@ -20,10 +20,8 @@ jobs:
     - name: Generate Project
       run: python scripts/build_app.py
       
-    - name: Download Gradle Wrapper
-      run: |
-        cd ScreenshotApp
-        wget -O gradle/wrapper/gradle-wrapper.jar https://raw.githubusercontent.com/gradle/gradle/v7.5.0/gradle/wrapper/gradle-wrapper.jar
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
       
     - name: Build APK
       run: |
