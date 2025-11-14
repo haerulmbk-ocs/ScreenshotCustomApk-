@@ -1157,31 +1157,24 @@ zipStorePath=wrapper/dists
     print(f"📄 Created file: {file_path}")
 
 def create_gradle_wrapper():
-    # Simple gradlew that should work
     gradlew_content = '''#!/bin/sh
+DEFAULT_JVM_OPTS="-Xmx64m -Xms64m"
 
-# Set default JVM options
-DEFAULT_JVM_OPTS='"-Xmx64m" "-Xms64m"'
-
-# Find java executable
 if [ -n "$JAVA_HOME" ] ; then
     JAVACMD="$JAVA_HOME/bin/java"
 else
     JAVACMD="java"
 fi
 
-# Execute Gradle
 exec "$JAVACMD" $DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS \\
-    "-Dorg.gradle.appname=gradlew" \\
     -classpath "gradle/wrapper/gradle-wrapper.jar" \\
     org.gradle.wrapper.GradleWrapperMain "$@"
 '''
     
     file_path = 'ScreenshotApp/gradlew'
-    with open(file_path, 'w') as f:
+    with open(file_path, 'w', newline='\n') as f:
         f.write(gradlew_content)
     os.chmod(file_path, 0o755)
-    print(f"📄 Created file: {file_path}")
 
 def create_strings_xml():
     content = '''<resources>
