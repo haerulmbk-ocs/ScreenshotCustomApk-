@@ -1157,87 +1157,24 @@ zipStorePath=wrapper/dists
     print(f"📄 Created file: {file_path}")
 
 def create_gradle_wrapper():
-    # Create proper gradlew file
-    gradlew_content = '''#!/usr/bin/env bash
+    # Simple gradlew that should work
+    gradlew_content = '''#!/bin/sh
 
-##############################################################################
-##
-##  Gradle start up script for UN*X
-##
-##############################################################################
-
-# Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
+# Set default JVM options
 DEFAULT_JVM_OPTS='"-Xmx64m" "-Xms64m"'
 
-# Determine the Java command to use to start the JVM.
+# Find java executable
 if [ -n "$JAVA_HOME" ] ; then
-    if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
-        # IBM's JDK on AIX uses strange locations for the executables
-        JAVACMD="$JAVA_HOME/jre/sh/java"
-    else
-        JAVACMD="$JAVA_HOME/bin/java"
-    fi
-    if [ ! -x "$JAVACMD" ] ; then
-        die "ERROR: JAVA_HOME is set to an invalid directory: $JAVA_HOME"
-    fi
+    JAVACMD="$JAVA_HOME/bin/java"
 else
     JAVACMD="java"
-    which java >/dev/null 2>&1 || die "ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH."
 fi
 
-# Increase the maximum file descriptors if we can.
-if [ "$cygwin" = "false" ] && [ "$darwin" = "false" ] && [ "$nonstop" = "false" ] ; then
-    MAX_FD_LIMIT=`ulimit -H -n`
-    if [ $? -eq 0 ] ; then
-        if [ "$MAX_FD" = "maximum" ] || [ "$MAX_FD" = "max" ] ; then
-            MAX_FD="$MAX_FD_LIMIT"
-        fi
-        ulimit -n $MAX_FD
-        if [ $? -ne 0 ] ; then
-            warn "Could not set maximum file descriptor limit: $MAX_FD"
-        fi
-    else
-        warn "Could not query maximum file descriptor limit: $MAX_FD_LIMIT"
-    fi
-fi
-
-# For Darwin, add options to specify how the application appears in the dock
-if $darwin; then
-    GRADLE_OPTS="$GRADLE_OPTS \\"-Xdock:name=$APP_NAME\\" \\"-Xdock:icon=$APP_HOME/media/gradle.icns\\""
-fi
-
-# For Cygwin or MSYS, switch paths to Windows format before running java
-if [ "$(uname -o)" = "Cygwin" ] || [ "$(uname -o)" = "Msys" ]; then
-    APP_HOME=$(cygpath --path --mixed "$APP_HOME")
-    CLASSPATH=$(cygpath --path --mixed "$CLASSPATH")
-    JAVACMD=$(cygpath --unix "$JAVACMD")
-
-    # We build the pattern for arguments to be converted via cygpath
-    ROOTDIRSRAW=$(find -L / -maxdepth 1 -mindepth 1 -type d 2>/dev/null)
-    SEP=""
-    for dir in $ROOTDIRSRAW ; do
-        ROOTDIRS="$ROOTDIRS$SEP$dir"
-        SEP="|"
-    done
-    OURCYGPATTERN="(^($ROOTDIRS))"
-    # Add a user-defined pattern to the cygpath arguments
-    if [ "$GRADLE_CYGPATTERN" != "" ] ; then
-        OURCYGPATTERN="$OURCYGPATTERN|($GRADLE_CYGPATTERN)"
-    fi
-fi
-
-# Collect all arguments for the java command;
-#   * $DEFAULT_JVM_OPTS, $JAVA_OPTS, and $GRADLE_OPTS can contain fragments of
-#     shell script including quotes and variable substitutions, so put them in
-#     double quotes to make sure that they get re-expanded; and
-#   * put everything else in single quotes, so that it's not re-expanded.
-set -- \\
-        "-Dorg.gradle.appname=$APP_BASE_NAME" \\
-        -classpath "$CLASSPATH" \\
-        org.gradle.wrapper.GradleWrapperMain \\
-        "$@"
-
-exec "$JAVACMD" "$@"
+# Execute Gradle
+exec "$JAVACMD" $DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS \\
+    "-Dorg.gradle.appname=gradlew" \\
+    -classpath "gradle/wrapper/gradle-wrapper.jar" \\
+    org.gradle.wrapper.GradleWrapperMain "$@"
 '''
     
     file_path = 'ScreenshotApp/gradlew'
@@ -1332,11 +1269,21 @@ ScreenshotApp/
     with open(file_path, 'w', encoding='utf-8') as f:
         f.write(content)
     print(f"📄 Created file: {file_path}")
+
 def create_gradle_wrapper_jar():
-    # Create minimal gradle-wrapper.jar file (empty, will be downloaded by gradle)
+    # Create a minimal valid JAR file for gradle wrapper
+    # This is a minimal ZIP structure that represents an empty JAR
+    jar_content = bytes([
+        0x50, 0x4B, 0x03, 0x04, 0x0A, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x50, 0x4B, 0x01, 0x02, 0x1E, 0x03, 0x0A, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+    ])
+    
     file_path = 'ScreenshotApp/gradle/wrapper/gradle-wrapper.jar'
     with open(file_path, 'wb') as f:
-        f.write(b'')  # Empty file, gradle will download the real one
+        f.write(jar_content)
     print(f"📄 Created file: {file_path}")
 
 def create_proguard_rules():
