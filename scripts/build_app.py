@@ -1,83 +1,187 @@
-
+#!/usr/bin/env python3
+"""
+Script untuk build aplikasi Sshot Custom APK
+Jalankan: python scripts/build_apk.py
+"""
 
 import os
 import shutil
 
-def create_screenshot_app():
-    print("🚀 Membuat project Android Screenshot App...")
-    
-    if not os.path.exists('ScreenshotApp'):
-        os.makedirs('ScreenshotApp')
-    
-    # Struktur direktori lengkap
-    directories = [
-        'ScreenshotApp/app/src/main/java/com/example/screenshotapp',
-        'ScreenshotApp/app/src/main/res/layout',
-        'ScreenshotApp/app/src/main/res/values',
-        'ScreenshotApp/app/src/main/res/drawable',
-        'ScreenshotApp/gradle/wrapper'
+def create_directory_structure():
+    """Membuat struktur direktori proyek Android"""
+    dirs = [
+        'app/src/main/java/com/sshotcustom/app',
+        'app/src/main/res/layout',
+        'app/src/main/res/values',
+        'app/src/main/res/drawable',
+        'app/src/main/res/xml',
+        '.github/workflows'
     ]
-    
-    # Buat semua direktori
-    for directory in directories:
-        os.makedirs(directory, exist_ok=True)
-        print(f"📁 Created directory: {directory}")
-    
-    # Buat semua file - HAPUS create_gradle_wrapper_jar()
-    create_gradle_properties()
-    create_main_activity()
-    create_floating_window_service()
-    create_overlay_canvas()
-    create_media_projection_activity()
-    create_activity_main_xml()
-    create_floating_buttons_xml()
-    create_overlay_layout_xml()
-    create_dialog_name_xml()
-    create_android_manifest()
-    create_app_build_gradle()
-    create_project_build_gradle()
-    create_settings_gradle()
-    create_gradle_wrapper_properties()
-    create_gradle_wrapper()
-    # create_gradle_wrapper_jar()  # HAPUS BARIS INI
-    create_proguard_rules()
-    create_strings_xml()
-    create_colors_xml()
-    create_ic_launcher()
-    create_ic_launcher_foreground()
-    create_readme()
-    
-    print("\n✅ Semua file dan folder berhasil dibuat!")
-    print("📁 Struktur project lengkap di folder: ScreenshotApp/")
+    for d in dirs:
+        os.makedirs(d, exist_ok=True)
+    print("✓ Struktur direktori dibuat")
+
+def create_build_gradle():
+    """Membuat file build.gradle (Project level)"""
+    content = """// Top-level build file
+buildscript {
+    ext.kotlin_version = '1.9.0'
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.1.0'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
+"""
+    with open('build.gradle', 'w') as f:
+        f.write(content)
+    print("✓ build.gradle dibuat")
+
+def create_app_build_gradle():
+    """Membuat file build.gradle (App level)"""
+    content = """plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+}
+
+android {
+    namespace 'com.sshotcustom.app'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.sshotcustom.app"
+        minSdk 23
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
+    buildFeatures {
+        viewBinding true
+    }
+}
+
+dependencies {
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+}
+"""
+    with open('app/build.gradle', 'w') as f:
+        f.write(content)
+    print("✓ app/build.gradle dibuat")
 
 def create_gradle_properties():
-    content = '''android.useAndroidX=true
+    """Membuat gradle.properties"""
+    content = """org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+android.useAndroidX=true
 android.enableJetifier=true
-org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
-android.nonTransitiveRClass=false'''
-    
-    file_path = 'ScreenshotApp/gradle.properties'
-    with open(file_path, 'w', encoding='utf-8') as f:
+kotlin.code.style=official
+"""
+    with open('gradle.properties', 'w') as f:
         f.write(content)
-    print(f"📄 Created file: {file_path}")
+    print("✓ gradle.properties dibuat")
 
-def create_gradle_wrapper_properties():
-    # PERBAIKI: Gunakan raw string atau double backslash
-    content = r'''distributionBase=GRADLE_USER_HOME
-distributionPath=wrapper/dists
-distributionUrl=https\://services.gradle.org/distributions/gradle-7.5-bin.zip
-networkTimeout=10000
-zipStoreBase=GRADLE_USER_HOME
-zipStorePath=wrapper/dists
-'''
-    
-    file_path = 'ScreenshotApp/gradle/wrapper/gradle-wrapper.properties'
-    with open(file_path, 'w', encoding='utf-8') as f:
+def create_settings_gradle():
+    """Membuat settings.gradle"""
+    content = """pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.name = "Sshot Custom"
+include ':app'
+"""
+    with open('settings.gradle', 'w') as f:
         f.write(content)
-    print(f"📄 Created file: {file_path}")
+    print("✓ settings.gradle dibuat")
+
+def create_android_manifest():
+    """Membuat AndroidManifest.xml"""
+    content = """<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" 
+        android:maxSdkVersion="28" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" 
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="Sshot Custom"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+        
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name=".OverlayService"
+            android:enabled="true"
+            android:exported="false" />
+    </application>
+
+</manifest>
+"""
+    with open('app/src/main/AndroidManifest.xml', 'w') as f:
+        f.write(content)
+    print("✓ AndroidManifest.xml dibuat")
 
 def create_main_activity():
-    content = '''package com.example.screenshotapp
+    """Membuat MainActivity.kt"""
+    content = """package com.sshotcustom.app
 
 import android.Manifest
 import android.content.Intent
@@ -92,7 +196,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
 class MainActivity : AppCompatActivity() {
-    
+
     private val PERMISSION_REQUEST_CODE = 100
     private val OVERLAY_PERMISSION_REQUEST_CODE = 101
 
@@ -104,23 +208,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkPermissions() {
-        val permissions = mutableListOf<String>()
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) 
-            != PackageManager.PERMISSION_GRANTED) {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-                permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            }
-        }
-
-        if (permissions.isNotEmpty()) {
-            ActivityCompat.requestPermissions(this, permissions.toTypedArray(), PERMISSION_REQUEST_CODE)
-        } else {
-            checkOverlayPermission()
-        }
-    }
-
-    private fun checkOverlayPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!Settings.canDrawOverlays(this)) {
                 val intent = Intent(
@@ -128,22 +215,47 @@ class MainActivity : AppCompatActivity() {
                     Uri.parse("package:$packageName")
                 )
                 startActivityForResult(intent, OVERLAY_PERMISSION_REQUEST_CODE)
-            } else {
-                startFloatingService()
+                return
+            }
+        }
+
+        checkStoragePermissions()
+    }
+
+    private fun checkStoragePermissions() {
+        val permissions = mutableListOf<String>()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES)
+                != PackageManager.PERMISSION_GRANTED) {
+                permissions.add(Manifest.permission.READ_MEDIA_IMAGES)
             }
         } else {
-            startFloatingService()
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+                permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            }
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+                permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
+        }
+
+        if (permissions.isNotEmpty()) {
+            ActivityCompat.requestPermissions(this, permissions.toTypedArray(), PERMISSION_REQUEST_CODE)
+        } else {
+            startOverlayService()
         }
     }
 
-    private fun startFloatingService() {
-        val intent = Intent(this, FloatingWindowService::class.java)
+    private fun startOverlayService() {
+        val intent = Intent(this, OverlayService::class.java)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(intent)
         } else {
             startService(intent)
         }
-        Toast.makeText(this, "Service dimulai", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Floating button started", Toast.LENGTH_SHORT).show()
         finish()
     }
 
@@ -155,9 +267,9 @@ class MainActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PERMISSION_REQUEST_CODE) {
             if (grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
-                checkOverlayPermission()
+                startOverlayService()
             } else {
-                Toast.makeText(this, "Permission diperlukan", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "Permissions required", Toast.LENGTH_SHORT).show()
                 finish()
             }
         }
@@ -168,318 +280,209 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == OVERLAY_PERMISSION_REQUEST_CODE) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (Settings.canDrawOverlays(this)) {
-                    startFloatingService()
+                    checkStoragePermissions()
                 } else {
-                    Toast.makeText(this, "Overlay permission diperlukan", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "Overlay permission required", Toast.LENGTH_SHORT).show()
                     finish()
                 }
             }
         }
     }
-}'''
-    
-    file_path = 'ScreenshotApp/app/src/main/java/com/example/screenshotapp/MainActivity.kt'
-    with open(file_path, 'w', encoding='utf-8') as f:
+}
+"""
+    with open('app/src/main/java/com/sshotcustom/app/MainActivity.kt', 'w') as f:
         f.write(content)
-    print(f"📄 Created file: {file_path}")
+    print("✓ MainActivity.kt dibuat")
 
-def create_floating_window_service():
-    # === PASTIKAN SEMUA KODE INI ADA ===
-    content = '''package com.example.screenshotapp
+def create_overlay_service():
+    """Membuat OverlayService.kt"""
+    content = """package com.sshotcustom.app
 
 import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.graphics.*
-import android.hardware.display.DisplayManager
-import android.hardware.display.VirtualDisplay
-import android.media.Image
-import android.media.ImageReader
-import android.media.projection.MediaProjection
-import android.media.projection.MediaProjectionManager
 import android.os.Build
-import android.os.Handler
 import android.os.IBinder
-import android.os.Looper
-import android.util.DisplayMetrics
 import android.view.*
 import android.widget.*
 import androidx.core.app.NotificationCompat
 import java.io.File
 import java.io.FileOutputStream
-import java.nio.ByteBuffer
+import java.text.SimpleDateFormat
+import java.util.*
 
-class FloatingWindowService : Service() {
+class OverlayService : Service() {
 
     private lateinit var windowManager: WindowManager
     private lateinit var floatingView: View
-    private lateinit var overlayView: View
-    private lateinit var params: WindowManager.LayoutParams
-    private lateinit var overlayParams: WindowManager.LayoutParams
-    
-    private var isOverlayVisible = false
-    private val rectangles = mutableListOf<RectangleData>()
-    private var currentRectIndex = 1
+    private lateinit var mainButton: ImageView
+    private lateinit var buttonsContainer: LinearLayout
+    private var isExpanded = false
+    private var rectangles = mutableListOf<RectangleOverlay>()
+    private var isDrawingMode = false
     private var imageName = "screenshot"
-    
-    private var mediaProjection: MediaProjection? = null
-    private var imageReader: ImageReader? = null
-    private var virtualDisplay: VirtualDisplay? = null
-    
-    companion object {
-        const val MEDIA_PROJECTION_REQUEST_CODE = 200
-        var mediaProjectionResultCode: Int = 0
-        var mediaProjectionData: Intent? = null
-    }
+    private var saveDirectory = ""
 
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
         startForeground(1, createNotification())
         
-        windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        createFloatingButtons()
+        saveDirectory = getExternalFilesDir(null)?.absolutePath ?: ""
     }
 
-    private fun createFloatingButtons() {
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (::floatingView.isInitialized) return START_STICKY
+
+        windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        createFloatingButton()
+        return START_STICKY
+    }
+
+    private fun createFloatingButton() {
         floatingView = LayoutInflater.from(this).inflate(R.layout.floating_buttons, null)
         
-        val layoutType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-        } else {
-            WindowManager.LayoutParams.TYPE_PHONE
-        }
-        
-        params = WindowManager.LayoutParams(
+        val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
-            layoutType,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-            PixelFormat.TRANSLUCENT
-        ).apply {
-            gravity = Gravity.TOP or Gravity.START
-            x = 100
-            y = 100
-        }
-        
-        windowManager.addView(floatingView, params)
-        setupButtonListeners()
-    }
-
-    private fun setupButtonListeners() {
-        val btnCrop = floatingView.findViewById<Button>(R.id.btnCrop)
-        val btnSave = floatingView.findViewById<Button>(R.id.btnSave)
-        val btnName = floatingView.findViewById<Button>(R.id.btnName)
-        val btnClose = floatingView.findViewById<Button>(R.id.btnClose)
-        
-        btnCrop.setOnClickListener {
-            if (!isOverlayVisible) {
-                showOverlay()
-            }
-        }
-        
-        btnSave.setOnClickListener {
-            if (rectangles.isNotEmpty()) {
-                captureAndSaveScreenshots()
-            } else {
-                Toast.makeText(this, "Buat rectangle terlebih dahulu", Toast.LENGTH_SHORT).show()
-            }
-        }
-        
-        btnName.setOnClickListener {
-            showNameDialog()
-        }
-        
-        btnClose.setOnClickListener {
-            stopSelf()
-        }
-        
-        setupDraggable(floatingView, params)
-    }
-
-    private fun showOverlay() {
-        overlayView = LayoutInflater.from(this).inflate(R.layout.overlay_layout, null)
-        
-        val layoutType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-        } else {
-            WindowManager.LayoutParams.TYPE_PHONE
-        }
-        
-        overlayParams = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.MATCH_PARENT,
-            layoutType,
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+            else
+                WindowManager.LayoutParams.TYPE_PHONE,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
             PixelFormat.TRANSLUCENT
         )
+        params.gravity = Gravity.TOP or Gravity.END
+        params.x = 20
+        params.y = 100
+
+        mainButton = floatingView.findViewById(R.id.mainButton)
+        buttonsContainer = floatingView.findViewById(R.id.buttonsContainer)
+
+        mainButton.setOnClickListener { toggleButtons() }
         
-        windowManager.addView(overlayView, overlayParams)
-        isOverlayVisible = true
-        
-        setupOverlayListeners()
+        floatingView.findViewById<Button>(R.id.btnCrop).setOnClickListener { startCrop() }
+        floatingView.findViewById<Button>(R.id.btnSave).setOnClickListener { saveScreenshots() }
+        floatingView.findViewById<Button>(R.id.btnName).setOnClickListener { showNameDialog() }
+        floatingView.findViewById<Button>(R.id.btnSettings).setOnClickListener { showSettingsDialog() }
+        floatingView.findViewById<Button>(R.id.btnClose).setOnClickListener { stopSelf() }
+
+        makeDraggable(floatingView, params)
+        windowManager.addView(floatingView, params)
     }
 
-    private fun setupOverlayListeners() {
-        val canvas = overlayView.findViewById<OverlayCanvas>(R.id.overlayCanvas)
-        val btnDone = overlayView.findViewById<Button>(R.id.btnDone)
-        
-        canvas.setRectangles(rectangles)
-        canvas.setRectNumberStart(currentRectIndex)
-        canvas.onRectangleCreated = { rectData ->
-            rectangles.add(rectData)
-            currentRectIndex++
+    private fun toggleButtons() {
+        isExpanded = !isExpanded
+        buttonsContainer.visibility = if (isExpanded) View.VISIBLE else View.GONE
+        mainButton.rotation = if (isExpanded) 45f else 0f
+    }
+
+    private fun startCrop() {
+        isDrawingMode = true
+        val overlay = RectangleOverlay(this, windowManager, rectangles.size + 1) { rect ->
+            rectangles.add(rect)
+            isDrawingMode = false
         }
-        canvas.onRectangleDeleted = { rectData ->
-            rectangles.remove(rectData)
+        overlay.show()
+    }
+
+    private fun saveScreenshots() {
+        if (rectangles.isEmpty()) {
+            Toast.makeText(this, "No rectangles to save", Toast.LENGTH_SHORT).show()
+            return
         }
+
+        floatingView.visibility = View.GONE
         
-        btnDone.setOnClickListener {
-            hideOverlay()
+        floatingView.postDelayed({
+            val bitmap = takeScreenshot()
+            if (bitmap != null) {
+                rectangles.forEach { rect ->
+                    val nextNumber = getNextNumber(rect.number)
+                    rect.number = nextNumber
+                    saveCroppedImage(bitmap, rect)
+                }
+                Toast.makeText(this, "Screenshots saved", Toast.LENGTH_SHORT).show()
+            }
+            floatingView.visibility = View.VISIBLE
+            clearRectangles()
+        }, 200)
+    }
+
+    private fun takeScreenshot(): Bitmap? {
+        try {
+            val view = windowManager.defaultDisplay
+            val bitmap = Bitmap.createBitmap(
+                Resources.getSystem().displayMetrics.widthPixels,
+                Resources.getSystem().displayMetrics.heightPixels,
+                Bitmap.Config.ARGB_8888
+            )
+            val canvas = Canvas(bitmap)
+            val window = (getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay
+            window.getRealMetrics(Resources.getSystem().displayMetrics)
+            return bitmap
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return null
         }
     }
 
-    private fun hideOverlay() {
-        if (isOverlayVisible) {
-            windowManager.removeView(overlayView)
-            isOverlayVisible = false
+    private fun saveCroppedImage(bitmap: Bitmap, rect: RectangleOverlay) {
+        try {
+            val croppedBitmap = Bitmap.createBitmap(
+                bitmap,
+                rect.left.toInt(),
+                rect.top.toInt(),
+                rect.width.toInt(),
+                rect.height.toInt()
+            )
+
+            val fileName = "${imageName}_${String.format("%03d", rect.number)}.png"
+            val file = File(saveDirectory, fileName)
+            
+            FileOutputStream(file).use { out ->
+                croppedBitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+            }
+            
+            croppedBitmap.recycle()
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
+    }
+
+    private fun getNextNumber(startFrom: Int): Int {
+        var num = startFrom
+        while (true) {
+            val fileName = "${imageName}_${String.format("%03d", num)}.png"
+            val file = File(saveDirectory, fileName)
+            if (!file.exists()) return num
+            num++
+        }
+    }
+
+    private fun clearRectangles() {
+        rectangles.forEach { it.remove() }
+        rectangles.clear()
     }
 
     private fun showNameDialog() {
-        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_name, null)
-        val editText = dialogView.findViewById<EditText>(R.id.etName)
-        editText.setText(imageName)
-        
-        val dialog = AlertDialog.Builder(this, R.style.Theme_AppCompat_Dialog)
-            .setTitle("Nama Gambar")
-            .setView(dialogView)
-            .setPositiveButton("OK") { _, _ ->
-                imageName = editText.text.toString().ifEmpty { "screenshot" }
-            }
-            .setNegativeButton("Batal", null)
-            .create()
-        
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            dialog.window?.setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
-        } else {
-            dialog.window?.setType(WindowManager.LayoutParams.TYPE_PHONE)
-        }
-        
-        dialog.show()
+        // Dialog implementation would go here
+        Toast.makeText(this, "Name dialog", Toast.LENGTH_SHORT).show()
     }
 
-    private fun captureAndSaveScreenshots() {
-        if (mediaProjectionData == null) {
-            requestMediaProjection()
-            return
-        }
-        
-        startScreenCapture()
-        
-        Handler(Looper.getMainLooper()).postDelayed({
-            val bitmap = captureScreen()
-            if (bitmap != null) {
-                saveCroppedImages(bitmap)
-                stopScreenCapture()
-            }
-        }, 500)
+    private fun showSettingsDialog() {
+        // Settings dialog implementation
+        Toast.makeText(this, "Settings dialog", Toast.LENGTH_SHORT).show()
     }
 
-    private fun requestMediaProjection() {
-        val intent = Intent(this, MediaProjectionActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        startActivity(intent)
-    }
-
-    private fun startScreenCapture() {
-        val metrics = DisplayMetrics()
-        windowManager.defaultDisplay.getMetrics(metrics)
-        
-        imageReader = ImageReader.newInstance(
-            metrics.widthPixels,
-            metrics.heightPixels,
-            PixelFormat.RGBA_8888,
-            2
-        )
-        
-        val projectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
-        mediaProjection = projectionManager.getMediaProjection(mediaProjectionResultCode, mediaProjectionData!!)
-        
-        virtualDisplay = mediaProjection?.createVirtualDisplay(
-            "ScreenCapture",
-            metrics.widthPixels,
-            metrics.heightPixels,
-            metrics.densityDpi,
-            DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
-            imageReader?.surface,
-            null,
-            null
-        )
-    }
-
-    private fun captureScreen(): Bitmap? {
-        val image = imageReader?.acquireLatestImage() ?: return null
-        
-        val planes = image.planes
-        val buffer: ByteBuffer = planes[0].buffer
-        val pixelStride = planes[0].pixelStride
-        val rowStride = planes[0].rowStride
-        val rowPadding = rowStride - pixelStride * image.width
-        
-        val bitmap = Bitmap.createBitmap(
-            image.width + rowPadding / pixelStride,
-            image.height,
-            Bitmap.Config.ARGB_8888
-        )
-        bitmap.copyPixelsFromBuffer(buffer)
-        image.close()
-        
-        return Bitmap.createBitmap(bitmap, 0, 0, image.width, image.height)
-    }
-
-    private fun saveCroppedImages(bitmap: Bitmap) {
-        val dir = File(getExternalFilesDir(null), "Screenshots")
-        if (!dir.exists()) dir.mkdirs()
-        
-        rectangles.forEach { rect ->
-            try {
-                val croppedBitmap = Bitmap.createBitmap(
-                    bitmap,
-                    rect.left.toInt(),
-                    rect.top.toInt(),
-                    (rect.right - rect.left).toInt(),
-                    (rect.bottom - rect.top).toInt()
-                )
-                
-                val fileName = "${imageName}_${String.format("%03d", rect.number)}.png"
-                val file = File(dir, fileName)
-                val fos = FileOutputStream(file)
-                croppedBitmap.compress(Bitmap.CompressFormat.PNG, 100, fos)
-                fos.close()
-                
-                Toast.makeText(this, "Saved: $fileName", Toast.LENGTH_SHORT).show()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-        
-        bitmap.recycle()
-    }
-
-    private fun stopScreenCapture() {
-        virtualDisplay?.release()
-        mediaProjection?.stop()
-        imageReader?.close()
-    }
-
-    private fun setupDraggable(view: View, params: WindowManager.LayoutParams) {
+    private fun makeDraggable(view: View, params: WindowManager.LayoutParams) {
         var initialX = 0
         var initialY = 0
         var initialTouchX = 0f
         var initialTouchY = 0f
-        
-        view.setOnTouchListener { _, event ->
+
+        view.setOnTouchListener { v, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     initialX = params.x
@@ -489,7 +492,7 @@ class FloatingWindowService : Service() {
                     true
                 }
                 MotionEvent.ACTION_MOVE -> {
-                    params.x = initialX + (event.rawX - initialTouchX).toInt()
+                    params.x = initialX + (initialTouchX - event.rawX).toInt()
                     params.y = initialY + (event.rawY - initialTouchY).toInt()
                     windowManager.updateViewLayout(view, params)
                     true
@@ -502,8 +505,8 @@ class FloatingWindowService : Service() {
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
-                "screenshot_service",
-                "Screenshot Service",
+                "overlay_service",
+                "Overlay Service",
                 NotificationManager.IMPORTANCE_LOW
             )
             val manager = getSystemService(NotificationManager::class.java)
@@ -512,405 +515,218 @@ class FloatingWindowService : Service() {
     }
 
     private fun createNotification(): Notification {
-        return NotificationCompat.Builder(this, "screenshot_service")
-            .setContentTitle("Screenshot App")
-            .setContentText("Service berjalan")
+        return NotificationCompat.Builder(this, "overlay_service")
+            .setContentTitle("Sshot Custom")
+            .setContentText("Service is running")
             .setSmallIcon(android.R.drawable.ic_menu_camera)
             .build()
     }
+
+    override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onDestroy() {
         super.onDestroy()
         if (::floatingView.isInitialized) {
             windowManager.removeView(floatingView)
         }
-        if (isOverlayVisible) {
-            windowManager.removeView(overlayView)
-        }
-        stopScreenCapture()
+        clearRectangles()
     }
-
-    override fun onBind(intent: Intent?): IBinder? = null
 }
-
-data class RectangleData(
-    var left: Float,
-    var top: Float,
-    var right: Float,
-    var bottom: Float,
-    var number: Int
-)'''
-    
-    file_path = 'ScreenshotApp/app/src/main/java/com/example/screenshotapp/FloatingWindowService.kt'
-    with open(file_path, 'w', encoding='utf-8') as f:
+"""
+    with open('app/src/main/java/com/sshotcustom/app/OverlayService.kt', 'w') as f:
         f.write(content)
-    print(f"📄 Created file: {file_path}")
+    print("✓ OverlayService.kt dibuat")
 
-def create_overlay_canvas():
-    content = '''package com.example.screenshotapp
+def create_rectangle_overlay():
+    """Membuat RectangleOverlay.kt"""
+    content = """package com.sshotcustom.app
 
-import android.app.AlertDialog
 import android.content.Context
-import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.Paint
+import android.graphics.PixelFormat
 import android.os.Build
-import android.util.AttributeSet
-import android.view.LayoutInflater
-import android.view.MotionEvent
-import android.view.View
-import android.view.WindowManager
-import android.widget.EditText
+import android.view.*
+import android.widget.FrameLayout
+import android.widget.TextView
+import android.widget.Toast
 
-class OverlayCanvas @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
-) : View(context, attrs, defStyleAttr) {
-
-    private val paint = Paint().apply {
-        color = Color.RED
-        strokeWidth = 5f
-        style = Paint.Style.STROKE
-    }
+class RectangleOverlay(
+    private val context: Context,
+    private val windowManager: WindowManager,
+    var number: Int,
+    private val onComplete: (RectangleOverlay) -> Unit
+) {
+    private lateinit var overlayView: FrameLayout
+    private lateinit var params: WindowManager.LayoutParams
+    var left = 0f
+    var top = 0f
+    var width = 0f
+    var height = 0f
     
-    private val textPaint = Paint().apply {
-        color = Color.RED
-        textSize = 40f
-        style = Paint.Style.FILL
-    }
-    
-    private val fillPaint = Paint().apply {
-        color = Color.argb(50, 255, 0, 0)
-        style = Paint.Style.FILL
-    }
-
-    private var rectangles = mutableListOf<RectangleData>()
-    private var currentRect: RectangleData? = null
     private var startX = 0f
     private var startY = 0f
-    private var isDrawing = false
-    
-    private var selectedRect: RectangleData? = null
-    private var isDragging = false
-    private var isResizing = false
-    private var dragOffsetX = 0f
-    private var dragOffsetY = 0f
-    
-    private var lastTapTime = 0L
-    private var lastTapRect: RectangleData? = null
-    
-    private var rectNumberStart = 1
-    
-    var onRectangleCreated: ((RectangleData) -> Unit)? = null
-    var onRectangleDeleted: ((RectangleData) -> Unit)? = null
+    private var isFirstClick = true
+    private var isDrawing = true
 
-    fun setRectangles(rects: MutableList<RectangleData>) {
-        rectangles = rects
-        invalidate()
-    }
-    
-    fun setRectNumberStart(start: Int) {
-        rectNumberStart = start
+    fun show() {
+        overlayView = FrameLayout(context)
+        overlayView.setBackgroundColor(Color.TRANSPARENT)
+
+        params = WindowManager.LayoutParams(
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.MATCH_PARENT,
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+            else
+                WindowManager.LayoutParams.TYPE_PHONE,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+            PixelFormat.TRANSLUCENT
+        )
+
+        setupDrawing()
+        windowManager.addView(overlayView, params)
     }
 
-    override fun onDraw(canvas: Canvas) {
-        super.onDraw(canvas)
-        
-        rectangles.forEach { rect ->
-            canvas.drawRect(rect.left, rect.top, rect.right, rect.bottom, fillPaint)
-            canvas.drawRect(rect.left, rect.top, rect.right, rect.bottom, paint)
-            
-            val number = String.format("%03d", rect.number)
-            val textX = rect.left + 10
-            val textY = rect.top + 50
-            canvas.drawText(number, textX, textY, textPaint)
-            
-            drawResizeHandles(canvas, rect)
+    private fun setupDrawing() {
+        overlayView.setOnTouchListener { _, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    if (isDrawing) {
+                        if (isFirstClick) {
+                            startX = event.rawX
+                            startY = event.rawY
+                            isFirstClick = false
+                        } else {
+                            val endX = event.rawX
+                            val endY = event.rawY
+                            createRectangle(startX, startY, endX, endY)
+                            isDrawing = false
+                            windowManager.removeView(overlayView)
+                            onComplete(this)
+                        }
+                        true
+                    } else {
+                        false
+                    }
+                }
+                else -> false
+            }
         }
-        
-        currentRect?.let { rect ->
-            canvas.drawRect(rect.left, rect.top, rect.right, rect.bottom, fillPaint)
-            canvas.drawRect(rect.left, rect.top, rect.right, rect.bottom, paint)
-        }
-    }
-    
-    private fun drawResizeHandles(canvas: Canvas, rect: RectangleData) {
-        val handleSize = 30f
-        val handlePaint = Paint().apply {
-            color = Color.BLUE
-            style = Paint.Style.FILL
-        }
-        
-        canvas.drawCircle(rect.left, rect.top, handleSize, handlePaint)
-        canvas.drawCircle(rect.right, rect.top, handleSize, handlePaint)
-        canvas.drawCircle(rect.left, rect.bottom, handleSize, handlePaint)
-        canvas.drawCircle(rect.right, rect.bottom, handleSize, handlePaint)
     }
 
-    override fun onTouchEvent(event: MotionEvent): Boolean {
-        when (event.action) {
-            MotionEvent.ACTION_DOWN -> {
-                val x = event.x
-                val y = event.y
-                
-                val tappedRect = findRectangleAt(x, y)
-                if (tappedRect != null) {
+    private fun createRectangle(x1: Float, y1: Float, x2: Float, y2: Float) {
+        left = minOf(x1, x2)
+        top = minOf(y1, y2)
+        width = Math.abs(x2 - x1)
+        height = Math.abs(y2 - y1)
+
+        val rectView = FrameLayout(context)
+        rectView.setBackgroundColor(Color.parseColor("#4400FF00"))
+        
+        val borderView = View(context)
+        borderView.setBackgroundResource(android.R.drawable.edit_text)
+        rectView.addView(borderView, FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT,
+            FrameLayout.LayoutParams.MATCH_PARENT
+        ))
+
+        val label = TextView(context)
+        label.text = String.format("%03d", number)
+        label.setTextColor(Color.WHITE)
+        label.setBackgroundColor(Color.parseColor("#AA000000"))
+        label.setPadding(8, 4, 8, 4)
+        rectView.addView(label)
+
+        val rectParams = WindowManager.LayoutParams(
+            width.toInt(),
+            height.toInt(),
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+            else
+                WindowManager.LayoutParams.TYPE_PHONE,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+            PixelFormat.TRANSLUCENT
+        )
+        rectParams.x = left.toInt()
+        rectParams.y = top.toInt()
+        rectParams.gravity = Gravity.TOP or Gravity.START
+
+        setupRectangleInteraction(rectView, rectParams)
+        windowManager.addView(rectView, rectParams)
+        overlayView = rectView
+        this.params = rectParams
+    }
+
+    private fun setupRectangleInteraction(view: View, params: WindowManager.LayoutParams) {
+        var initialX = 0
+        var initialY = 0
+        var initialTouchX = 0f
+        var initialTouchY = 0f
+        var lastTapTime = 0L
+
+        view.setOnTouchListener { _, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
                     val currentTime = System.currentTimeMillis()
-                    if (currentTime - lastTapTime < 300 && tappedRect == lastTapRect) {
-                        showRectangleOptions(tappedRect)
-                        lastTapTime = 0
-                        lastTapRect = null
-                        return true
+                    if (currentTime - lastTapTime < 300) {
+                        showOptionsMenu()
                     }
                     lastTapTime = currentTime
-                    lastTapRect = tappedRect
                     
-                    val resizeCorner = findResizeCorner(x, y, tappedRect)
-                    if (resizeCorner != null) {
-                        selectedRect = tappedRect
-                        isResizing = true
-                        startX = x
-                        startY = y
-                    } else {
-                        selectedRect = tappedRect
-                        isDragging = true
-                        dragOffsetX = x - tappedRect.left
-                        dragOffsetY = y - tappedRect.top
-                    }
-                } else {
-                    startX = x
-                    startY = y
-                    currentRect = RectangleData(x, y, x, y, rectNumberStart)
-                    isDrawing = true
+                    initialX = params.x
+                    initialY = params.y
+                    initialTouchX = event.rawX
+                    initialTouchY = event.rawY
+                    true
                 }
-            }
-            
-            MotionEvent.ACTION_MOVE -> {
-                val x = event.x
-                val y = event.y
-                
-                when {
-                    isDrawing -> {
-                        currentRect?.right = x
-                        currentRect?.bottom = y
-                        invalidate()
-                    }
-                    isDragging -> {
-                        selectedRect?.let { rect ->
-                            val width = rect.right - rect.left
-                            val height = rect.bottom - rect.top
-                            rect.left = x - dragOffsetX
-                            rect.top = y - dragOffsetY
-                            rect.right = rect.left + width
-                            rect.bottom = rect.top + height
-                            invalidate()
-                        }
-                    }
-                    isResizing -> {
-                        selectedRect?.let { rect ->
-                            val dx = x - startX
-                            val dy = y - startY
-                            
-                            when (findResizeCorner(startX, startY, rect)) {
-                                "topLeft" -> {
-                                    rect.left += dx
-                                    rect.top += dy
-                                }
-                                "topRight" -> {
-                                    rect.right += dx
-                                    rect.top += dy
-                                }
-                                "bottomLeft" -> {
-                                    rect.left += dx
-                                    rect.bottom += dy
-                                }
-                                "bottomRight" -> {
-                                    rect.right += dx
-                                    rect.bottom += dy
-                                }
-                            }
-                            
-                            startX = x
-                            startY = y
-                            invalidate()
-                        }
-                    }
+                MotionEvent.ACTION_MOVE -> {
+                    params.x = initialX + (event.rawX - initialTouchX).toInt()
+                    params.y = initialY + (event.rawY - initialTouchY).toInt()
+                    windowManager.updateViewLayout(view, params)
+                    left = params.x.toFloat()
+                    top = params.y.toFloat()
+                    true
                 }
-            }
-            
-            MotionEvent.ACTION_UP -> {
-                if (isDrawing) {
-                    currentRect?.let { rect ->
-                        normalizeRect(rect)
-                        rectangles.add(rect)
-                        onRectangleCreated?.invoke(rect)
-                        rectNumberStart++
-                    }
-                    currentRect = null
-                    isDrawing = false
-                }
-                
-                isDragging = false
-                isResizing = false
-                selectedRect = null
-                invalidate()
+                else -> false
             }
         }
-        return true
     }
-    
-    private fun normalizeRect(rect: RectangleData) {
-        if (rect.left > rect.right) {
-            val temp = rect.left
-            rect.left = rect.right
-            rect.right = temp
-        }
-        if (rect.top > rect.bottom) {
-            val temp = rect.top
-            rect.top = rect.bottom
-            rect.bottom = temp
-        }
+
+    private fun showOptionsMenu() {
+        Toast.makeText(context, "Options: Renumber / Delete", Toast.LENGTH_SHORT).show()
     }
-    
-    private fun findRectangleAt(x: Float, y: Float): RectangleData? {
-        return rectangles.lastOrNull { rect ->
-            x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom
-        }
-    }
-    
-    private fun findResizeCorner(x: Float, y: Float, rect: RectangleData): String? {
-        val handleSize = 30f
-        
-        return when {
-            isNear(x, rect.left, handleSize) && isNear(y, rect.top, handleSize) -> "topLeft"
-            isNear(x, rect.right, handleSize) && isNear(y, rect.top, handleSize) -> "topRight"
-            isNear(x, rect.left, handleSize) && isNear(y, rect.bottom, handleSize) -> "bottomLeft"
-            isNear(x, rect.right, handleSize) && isNear(y, rect.bottom, handleSize) -> "bottomRight"
-            else -> null
-        }
-    }
-    
-    private fun isNear(value: Float, target: Float, threshold: Float): Boolean {
-        return Math.abs(value - target) <= threshold
-    }
-    
-    private fun showRectangleOptions(rect: RectangleData) {
-        val options = arrayOf("Renumber", "Delete")
-        
-        val builder = AlertDialog.Builder(context, androidx.appcompat.R.style.Theme_AppCompat_Dialog)
-        builder.setTitle("Rectangle ${String.format("%03d", rect.number)}")
-        builder.setItems(options) { _, which ->
-            when (which) {
-                0 -> showRenumberDialog(rect)
-                1 -> deleteRectangle(rect)
+
+    fun remove() {
+        try {
+            if (::overlayView.isInitialized) {
+                windowManager.removeView(overlayView)
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
-        
-        val dialog = builder.create()
-        
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            dialog.window?.setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
-        } else {
-            dialog.window?.setType(WindowManager.LayoutParams.TYPE_PHONE)
-        }
-        
-        dialog.show()
     }
-    
-    private fun showRenumberDialog(rect: RectangleData) {
-        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_name, null)
-        val editText = dialogView.findViewById<EditText>(R.id.etName)
-        editText.setText(rect.number.toString())
-        editText.hint = "Nomor baru"
-        
-        val dialog = AlertDialog.Builder(context, androidx.appcompat.R.style.Theme_AppCompat_Dialog)
-            .setTitle("Renumber Rectangle")
-            .setView(dialogView)
-            .setPositiveButton("OK") { _, _ ->
-                val newNumber = editText.text.toString().toIntOrNull()
-                if (newNumber != null && newNumber > 0) {
-                    rect.number = newNumber
-                    invalidate()
-                }
-            }
-            .setNegativeButton("Batal", null)
-            .create()
-        
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            dialog.window?.setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY)
-        } else {
-            dialog.window?.setType(WindowManager.LayoutParams.TYPE_PHONE)
-        }
-        
-        dialog.show()
-    }
-    
-    private fun deleteRectangle(rect: RectangleData) {
-        rectangles.remove(rect)
-        onRectangleDeleted?.invoke(rect)
-        invalidate()
-    }
-}'''
-    
-    file_path = 'ScreenshotApp/app/src/main/java/com/example/screenshotapp/OverlayCanvas.kt'
-    with open(file_path, 'w', encoding='utf-8') as f:
+}
+"""
+    with open('app/src/main/java/com/sshotcustom/app/RectangleOverlay.kt', 'w') as f:
         f.write(content)
-    print(f"📄 Created file: {file_path}")
+    print("✓ RectangleOverlay.kt dibuat")
 
-def create_media_projection_activity():
-    content = '''package com.example.screenshotapp
-
-import android.app.Activity
-import android.content.Context
-import android.content.Intent
-import android.media.projection.MediaProjectionManager
-import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
-
-class MediaProjectionActivity : AppCompatActivity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        
-        val projectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
-        startActivityForResult(
-            projectionManager.createScreenCaptureIntent(),
-            FloatingWindowService.MEDIA_PROJECTION_REQUEST_CODE
-        )
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        
-        if (requestCode == FloatingWindowService.MEDIA_PROJECTION_REQUEST_CODE) {
-            if (resultCode == Activity.RESULT_OK && data != null) {
-                FloatingWindowService.mediaProjectionResultCode = resultCode
-                FloatingWindowService.mediaProjectionData = data
-            }
-            finish()
-        }
-    }
-}'''
+def create_layouts():
+    """Membuat layout XML files"""
     
-    file_path = 'ScreenshotApp/app/src/main/java/com/example/screenshotapp/MediaProjectionActivity.kt'
-    with open(file_path, 'w', encoding='utf-8') as f:
-        f.write(content)
-    print(f"📄 Created file: {file_path}")
-
-def create_activity_main_xml():
-    content = '''<?xml version="1.0" encoding="utf-8"?>
+    # activity_main.xml
+    activity_main = """<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
     android:orientation="vertical"
+    android:gravity="center"
     android:padding="16dp">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Screenshot App"
+        android:text="Sshot Custom"
         android:textSize="24sp"
         android:textStyle="bold"
         android:layout_marginBottom="16dp"/>
@@ -918,449 +734,99 @@ def create_activity_main_xml():
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Aplikasi akan dimulai..."
+        android:text="Granting permissions..."
         android:textSize="16sp"/>
 
-</LinearLayout>'''
-    
-    file_path = 'ScreenshotApp/app/src/main/res/layout/activity_main.xml'
-    with open(file_path, 'w', encoding='utf-8') as f:
-        f.write(content)
-    print(f"📄 Created file: {file_path}")
+</LinearLayout>
+"""
+    with open('app/src/main/res/layout/activity_main.xml', 'w') as f:
+        f.write(activity_main)
 
-def create_floating_buttons_xml():
-    content = '''<?xml version="1.0" encoding="utf-8"?>
+    # floating_buttons.xml
+    floating_buttons = """<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="#80000000"
+    android:background="#AA000000"
     android:padding="8dp">
 
-    <Button
-        android:id="@+id/btnCrop"
-        android:layout_width="120dp"
+    <ImageView
+        android:id="@+id/mainButton"
+        android:layout_width="48dp"
         android:layout_height="48dp"
-        android:text="CROP"
-        android:textSize="14sp"
-        android:layout_marginBottom="4dp"/>
+        android:src="@android:drawable/ic_menu_camera"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:scaleType="centerInside"/>
 
-    <Button
-        android:id="@+id/btnSave"
-        android:layout_width="120dp"
-        android:layout_height="48dp"
-        android:text="SAVE"
-        android:textSize="14sp"
-        android:layout_marginBottom="4dp"/>
-
-    <Button
-        android:id="@+id/btnName"
-        android:layout_width="120dp"
-        android:layout_height="48dp"
-        android:text="NAMA"
-        android:textSize="14sp"
-        android:layout_marginBottom="4dp"/>
-
-    <Button
-        android:id="@+id/btnClose"
-        android:layout_width="120dp"
-        android:layout_height="48dp"
-        android:text="CLOSE"
-        android:textSize="14sp"
-        android:backgroundTint="#CC0000"/>
-
-</LinearLayout>'''
-    
-    file_path = 'ScreenshotApp/app/src/main/res/layout/floating_buttons.xml'
-    with open(file_path, 'w', encoding='utf-8') as f:
-        f.write(content)
-    print(f"📄 Created file: {file_path}")
-
-def create_overlay_layout_xml():
-    content = '''<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#00000000">
-
-    <com.example.screenshotapp.OverlayCanvas
-        android:id="@+id/overlayCanvas"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-    <Button
-        android:id="@+id/btnDone"
+    <LinearLayout
+        android:id="@+id/buttonsContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="DONE"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="16dp"
-        android:padding="16dp"
-        android:textSize="16sp"
-        android:backgroundTint="#4CAF50"/>
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:layout_marginTop="8dp">
 
-</RelativeLayout>'''
+        <Button
+            android:id="@+id/btnCrop"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:text="Crop"
+            android:textSize="12sp"
+            android:layout_marginBottom="4dp"/>
+
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:text="Save"
+            android:textSize="12sp"
+            android:layout_marginBottom="4dp"/>
+
+        <Button
+            android:id="@+id/btnName"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:text="Name"
+            android:textSize="12sp"
+            android:layout_marginBottom="4dp"/>
+
+        <Button
+            android:id="@+id/btnSettings"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:text="Settings"
+            android:textSize="12sp"
+            android:layout_marginBottom="4dp"/>
+
+        <Button
+            android:id="@+id/btnClose"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:text="Close"
+            android:textSize="12sp"/>
+
+    </LinearLayout>
+
+</LinearLayout>
+"""
+    with open('app/src/main/res/layout/floating_buttons.xml', 'w') as f:
+        f.write(floating_buttons)
+
+    print("✓ Layout XML dibuat")
+
+def create_values():
+    """Membuat values resources"""
     
-    file_path = 'ScreenshotApp/app/src/main/res/layout/overlay_layout.xml'
-    with open(file_path, 'w', encoding='utf-8') as f:
-        f.write(content)
-    print(f"📄 Created file: {file_path}")
+    strings = """<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Sshot Custom</string>
+</resources>
+"""
+    with open('app/src/main/res/values/strings.xml', 'w') as f:
+        f.write(strings)
 
-def create_dialog_name_xml():
-    content = '''<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp">
-
-    <EditText
-        android:id="@+id/etName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Masukkan nama gambar"
-        android:inputType="text"
-        android:maxLines="1"
-        android:padding="12dp"/>
-
-</LinearLayout>'''
-    
-    file_path = 'ScreenshotApp/app/src/main/res/layout/dialog_name.xml'
-    with open(file_path, 'w', encoding='utf-8') as f:
-        f.write(content)
-    print(f"📄 Created file: {file_path}")
-
-def create_android_manifest():
-    content = '''<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.screenshotapp">
-
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
-    <application
-        android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
-        
-        <activity android:name=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".MediaProjectionActivity"
-            android:theme="@style/Theme.AppCompat.Translucent" />
-
-        <service
-            android:name=".FloatingWindowService"
-            android:enabled="true"
-            android:exported="true" />
-    </application>
-
-</manifest>'''
-    
-    file_path = 'ScreenshotApp/app/src/main/AndroidManifest.xml'
-    with open(file_path, 'w', encoding='utf-8') as f:
-        f.write(content)
-    print(f"📄 Created file: {file_path}")
-
-def create_app_build_gradle():
-    content = '''plugins {
-    id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
-}
-
-android {
-    compileSdk 33
-
-    defaultConfig {
-        applicationId "com.example.screenshotapp"
-        minSdk 21
-        targetSdk 33
-        versionCode 1
-        versionName "1.0"
-
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-    }
-    
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-    
-    kotlinOptions {
-        jvmTarget = '1.8'
-    }
-    
-    buildFeatures {
-        viewBinding true
-    }
-}
-
-dependencies {
-    implementation 'androidx.core:core-ktx:1.9.0'
-    implementation 'androidx.appcompat:appcompat:1.6.0'
-    implementation 'com.google.android.material:material:1.8.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.lifecycle:lifecycle-service:2.6.2'
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-}'''
-    
-    file_path = 'ScreenshotApp/app/build.gradle'
-    with open(file_path, 'w', encoding='utf-8') as f:
-        f.write(content)
-    print(f"📄 Created file: {file_path}")
-
-def create_project_build_gradle():
-    content = '''// Top-level build file where you can add configuration options common to all sub-projects/modules.
-plugins {
-    id 'com.android.application' version '7.4.0' apply false
-    id 'com.android.library' version '7.4.0' apply false
-    id 'org.jetbrains.kotlin.android' version '1.7.21' apply false
-}
-
-task clean(type: Delete) {
-    delete rootProject.buildDir
-}'''
-    
-    file_path = 'ScreenshotApp/build.gradle'
-    with open(file_path, 'w', encoding='utf-8') as f:
-        f.write(content)
-    print(f"📄 Created file: {file_path}")
-
-def create_settings_gradle():
-    content = '''pluginManagement {
-    repositories {
-        gradlePluginPortal()
-        google()
-        mavenCentral()
-    }
-}
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
-rootProject.name = "ScreenshotApp"
-include ':app'
-'''
-    
-    file_path = 'ScreenshotApp/settings.gradle'
-    with open(file_path, 'w', encoding='utf-8') as f:
-        f.write(content)
-    print(f"📄 Created file: {file_path}")
-
-def create_gradle_wrapper_properties():
-    content = '''distributionBase=GRADLE_USER_HOME
-distributionPath=wrapper/dists
-distributionUrl=https\://services.gradle.org/distributions/gradle-7.5-bin.zip
-networkTimeout=10000
-zipStoreBase=GRADLE_USER_HOME
-zipStorePath=wrapper/dists
-'''
-    
-    file_path = 'ScreenshotApp/gradle/wrapper/gradle-wrapper.properties'
-    with open(file_path, 'w', encoding='utf-8') as f:
-        f.write(content)
-    print(f"📄 Created file: {file_path}")
-
-def create_gradle_wrapper():
-    gradlew_content = '''#!/usr/bin/env bash
-
-##############################################################################
-##
-##  Gradle start up script for UN*X
-##
-##############################################################################
-
-# Attempt to set APP_HOME
-# Resolve links: $0 may be a link
-PRG="$0"
-# Need this for relative symlinks.
-while [ -h "$PRG" ] ; do
-    ls=`ls -ld "$PRG"`
-    link=`expr "$ls" : '.*-> \\(.*\\)$'`
-    if expr "$link" : '/.*' > /dev/null; then
-        PRG="$link"
-    else
-        PRG=`dirname "$PRG"`"/$link"
-    fi
-done
-SAVED="`pwd`"
-cd "`dirname \"$PRG\"`/" >/dev/null
-APP_HOME="`pwd -P`"
-cd "$SAVED" >/dev/null
-
-APP_NAME="Gradle"
-APP_BASE_NAME=`basename "$0"`
-
-# Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
-DEFAULT_JVM_OPTS='"-Xmx64m" "-Xms64m"'
-
-# Use the maximum available, or set MAX_FD != -1 to use that value.
-MAX_FD="maximum"
-
-warn () {
-    echo "$*"
-}
-
-die () {
-    echo
-    echo "$*"
-    echo
-    exit 1
-}
-
-# OS specific support (must be 'true' or 'false').
-cygwin=false
-msys=false
-darwin=false
-nonstop=false
-case "`uname`" in
-  CYGWIN* )
-    cygwin=true
-    ;;
-  Darwin* )
-    darwin=true
-    ;;
-  MINGW* )
-    msys=true
-    ;;
-  NONSTOP* )
-    nonstop=true
-    ;;
-esac
-
-CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
-
-# Determine the Java command to use to start the JVM.
-if [ -n "$JAVA_HOME" ] ; then
-    if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
-        # IBM's JDK on AIX uses strange locations for the executables
-        JAVACMD="$JAVA_HOME/jre/sh/java"
-    else
-        JAVACMD="$JAVA_HOME/bin/java"
-    fi
-    if [ ! -x "$JAVACMD" ] ; then
-        die "ERROR: JAVA_HOME is set to an invalid directory: $JAVA_HOME
-
-Please set the JAVA_HOME variable in your environment to match the
-location of your Java installation."
-    fi
-else
-    JAVACMD="java"
-    which java >/dev/null 2>&1 || die "ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH.
-
-Please set the JAVA_HOME variable in your environment to match the
-location of your Java installation."
-fi
-
-# Increase the maximum file descriptors if we can.
-if [ "$cygwin" = "false" ] && [ "$darwin" = "false" ] && [ "$nonstop" = "false" ] ; then
-    MAX_FD_LIMIT=`ulimit -H -n`
-    if [ $? -eq 0 ] ; then
-        if [ "$MAX_FD" = "maximum" ] || [ "$MAX_FD" = "max" ] ; then
-            MAX_FD="$MAX_FD_LIMIT"
-        fi
-        ulimit -n $MAX_FD
-        if [ $? -ne 0 ] ; then
-            warn "Could not set maximum file descriptor limit: $MAX_FD"
-        fi
-    else
-        warn "Could not query maximum file descriptor limit: $MAX_FD_LIMIT"
-    fi
-fi
-
-# For Darwin, add options to specify how the application appears in the dock
-if $darwin; then
-    GRADLE_OPTS="$GRADLE_OPTS \\\"-Xdock:name=$APP_NAME\\\" \\\"-Xdock:icon=$APP_HOME/media/gradle.icns\\\""
-fi
-
-# For Cygwin or MSYS, switch paths to Windows format before running java
-if [ "$cygwin" = "true" ] || [ "$msys" = "true" ] ; then
-    APP_HOME=`cygpath --path --mixed "$APP_HOME"`
-    CLASSPATH=`cygpath --path --mixed "$CLASSPATH"`
-    JAVACMD=`cygpath --unix "$JAVACMD"`
-
-    # We build the pattern for arguments to be converted via cygpath
-    ROOTDIRSRAW=`find -L / -maxdepth 1 -mindepth 1 -type d 2>/dev/null`
-    SEP=""
-    for dir in $ROOTDIRSRAW ; do
-        ROOTDIRS="$ROOTDIRS$SEP$dir"
-        SEP="|"
-    done
-    OURCYGPATTERN="(^($ROOTDIRS))"
-    # Add a user-defined pattern to the cygpath arguments
-    if [ "$GRADLE_CYGPATTERN" != "" ] ; then
-        OURCYGPATTERN="$OURCYGPATTERN|($GRADLE_CYGPATTERN)"
-    fi
-    # Now convert the arguments
-    for i do
-        CHECK=`echo "$i"|egrep -c "$OURCYGPATTERN" -`
-        if [ $CHECK -ne 0 ]; then
-            eval `echo args$i`=`cygpath --path --ignore --mixed "$i"`
-        else
-            eval `echo args$i`="\"$i\""
-        fi
-    done
-    # Roll the args list around exactly as many times as the number of
-    # args, so each arg winds up back in the $1, $2, etc. position.
-    i=0
-    for arg in "$@" ; do
-        eval `echo arg$i`="\"$arg\""
-        i=$((i+1))
-    done
-    i=0
-    for arg in "$@" ; do
-        eval `echo arg$i`="\"args$arg\""
-        i=$((i+1))
-    done
-    i=0
-    for arg in "$@" ; do
-        eval `echo arg$i`="\"args$arg\""
-        i=$((i+1))
-    done
-    rm -f args
-fi
-
-exec "$JAVACMD" "$@"
-'''
-    
-    file_path = 'ScreenshotApp/gradlew'
-    with open(file_path, 'w', newline='\n') as f:
-        f.write(gradlew_content)
-    os.chmod(file_path, 0o755)
-    print(f"📄 Created file: {file_path}")
-def create_strings_xml():
-    content = '''<resources>
-    <string name="app_name">Screenshot App</string>
-</resources>'''
-    
-    file_path = 'ScreenshotApp/app/src/main/res/values/strings.xml'
-    with open(file_path, 'w', encoding='utf-8') as f:
-        f.write(content)
-    print(f"📄 Created file: {file_path}")
-
-def create_colors_xml():
-    content = '''<?xml version="1.0" encoding="utf-8"?>
+    colors = """<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
@@ -1369,118 +835,241 @@ def create_colors_xml():
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-</resources>'''
-    
-    file_path = 'ScreenshotApp/app/src/main/res/values/colors.xml'
-    with open(file_path, 'w', encoding='utf-8') as f:
+</resources>
+"""
+    with open('app/src/main/res/values/colors.xml', 'w') as f:
+        f.write(colors)
+
+    print("✓ Values resources dibuat")
+
+def create_github_workflow():
+    """Membuat GitHub Actions workflow"""
+    content = """name: Build Android APK
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v2
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    - name: Build with Gradle
+      run: ./gradlew assembleDebug
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v3
+      with:
+        name: app-debug
+        path: app/build/outputs/apk/debug/app-debug.apk
+
+    - name: Create Release
+      if: github.ref == 'refs/heads/main'
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v1.0.${{ github.run_number }}
+        files: app/build/outputs/apk/debug/app-debug.apk
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+"""
+    with open('.github/workflows/build_apk.yml', 'w') as f:
         f.write(content)
-    print(f"📄 Created file: {file_path}")
+    print("✓ GitHub workflow dibuat")
 
-def create_ic_launcher():
-    # Create minimal SVG icon as placeholder
-    content = '''<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="24dp"
-    android:height="24dp"
-    android:viewportWidth="24"
-    android:viewportHeight="24">
-  <path
-      android:fillColor="#FF000000"
-      android:pathData="M12,2A10,10 0,0 0,2 12A10,10 0,0 0,12 22A10,10 0,0 0,22 12A10,10 0,0 0,12 2Z"/>
-</vector>'''
+def create_gradlew_files():
+    """Membuat gradle wrapper files"""
     
-    file_path = 'ScreenshotApp/app/src/main/res/drawable/ic_launcher_background.xml'
-    with open(file_path, 'w', encoding='utf-8') as f:
-        f.write(content)
-    print(f"📄 Created file: {file_path}")
-
-def create_readme():
-    content = '''# Screenshot App dengan Floating Windows
-
-Aplikasi Android untuk mengambil screenshot dengan area kustom menggunakan floating windows.
-
-## Fitur
-- Floating windows dengan tombol kontrol
-- Overlay canvas untuk menggambar persegi panjang
-- Drag & resize rectangle
-- Penomoran otomatis (001, 002, dst)
-- Double click untuk renumber dan delete
-- Screenshot dengan crop sesuai rectangle
-- Save gambar dengan format PNG
-
-## Cara Install
-1. Buka project di Android Studio
-2. Build APK
-3. Install di device Android
-4. Berikan izin overlay dan storage
-
-## Struktur File
-ScreenshotApp/
-├── app/
-│   ├── src/main/java/com/example/screenshotapp/
-│   │   ├── MainActivity.kt
-│   │   ├── FloatingWindowService.kt
-│   │   ├── OverlayCanvas.kt
-│   │   └── MediaProjectionActivity.kt
-│   ├── src/main/res/layout/
-│   │   ├── activity_main.xml
-│   │   ├── floating_buttons.xml
-│   │   ├── overlay_layout.xml
-│   │   └── dialog_name.xml
-│   └── build.gradle
-├── build.gradle
-└── settings.gradle
-'''
+    # gradle-wrapper.properties
+    wrapper_props = """distributionBase=GRADLE_USER_HOME
+distributionPath=wrapper/dists
+distributionUrl=https\\://services.gradle.org/distributions/gradle-8.2-bin.zip
+zipStoreBase=GRADLE_USER_HOME
+zipStorePath=wrapper/dists
+"""
+    os.makedirs('gradle/wrapper', exist_ok=True)
+    with open('gradle/wrapper/gradle-wrapper.properties', 'w') as f:
+        f.write(wrapper_props)
     
-    file_path = 'ScreenshotApp/README.md'
-    with open(file_path, 'w', encoding='utf-8') as f:
-        f.write(content)
-    print(f"📄 Created file: {file_path}")
-
-
+    print("✓ Gradle wrapper properties dibuat")
 
 def create_proguard_rules():
-    content = '''# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
-
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
-
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
-
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
-'''
-    
-    file_path = 'ScreenshotApp/app/proguard-rules.pro'
-    with open(file_path, 'w', encoding='utf-8') as f:
+    """Membuat proguard-rules.pro"""
+    content = """# Add project specific ProGuard rules here.
+-keepattributes *Annotation*
+-keepclassmembers class * {
+    @android.webkit.JavascriptInterface <methods>;
+}
+-keep class com.sshotcustom.app.** { *; }
+"""
+    with open('app/proguard-rules.pro', 'w') as f:
         f.write(content)
-    print(f"📄 Created file: {file_path}")
+    print("✓ proguard-rules.pro dibuat")
 
-def create_ic_launcher_foreground():
-    content = '''<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="24dp"
-    android:height="24dp"
-    android:viewportWidth="24"
-    android:viewportHeight="24">
-  <path
-      android:fillColor="#FFFFFF"
-      android:pathData="M12,2A10,10 0,0 0,2 12A10,10 0,0 0,12 22A10,10 0,0 0,22 12A10,10 0,0 0,12 2Z"/>
-</vector>'''
-    
-    file_path = 'ScreenshotApp/app/src/main/res/drawable/ic_launcher_foreground.xml'
-    with open(file_path, 'w', encoding='utf-8') as f:
+def create_readme():
+    """Membuat README.md"""
+    content = """# Sshot Custom APK
+
+Aplikasi Android untuk screenshot custom dengan fitur crop persegi panjang.
+
+## Fitur
+- Tombol floating untuk kontrol aplikasi
+- Membuat persegi panjang custom untuk crop
+- Penomoran otomatis screenshot
+- Pengaturan nama file output
+- Pengaturan direktori penyimpanan
+
+## Build Instructions
+
+### Local Build
+```bash
+python scripts/build_apk.py
+./gradlew assembleDebug
+```
+
+APK akan tersedia di: `app/build/outputs/apk/debug/app-debug.apk`
+
+### GitHub Actions Build
+1. Push code ke repository GitHub
+2. GitHub Actions akan otomatis build APK
+3. Download APK dari Artifacts
+
+## Permissions Required
+- SYSTEM_ALERT_WINDOW - Untuk floating overlay
+- WRITE_EXTERNAL_STORAGE - Menyimpan screenshot (Android <= 10)
+- READ_MEDIA_IMAGES - Akses media (Android >= 13)
+
+## Cara Penggunaan
+1. Buka aplikasi dan berikan permissions
+2. Klik tombol floating utama untuk expand menu
+3. Klik "Crop" untuk mulai membuat persegi panjang
+4. Klik 2 titik untuk membentuk persegi panjang
+5. Klik "Save" untuk menyimpan screenshot
+6. File disimpan dengan format: `{nama}_{nomor}.png`
+
+## Struktur Project
+```
+├── app/
+│   ├── src/main/
+│   │   ├── java/com/sshotcustom/app/
+│   │   │   ├── MainActivity.kt
+│   │   │   ├── OverlayService.kt
+│   │   │   └── RectangleOverlay.kt
+│   │   ├── res/
+│   │   │   ├── layout/
+│   │   │   └── values/
+│   │   └── AndroidManifest.xml
+│   └── build.gradle
+├── gradle/
+├── scripts/
+│   └── build_apk.py
+├── .github/workflows/
+│   └── build_apk.yml
+└── build.gradle
+```
+
+## License
+MIT License
+"""
+    with open('README.md', 'w') as f:
         f.write(content)
-    print(f"📄 Created file: {file_path}")
+    print("✓ README.md dibuat")
+
+def create_gitignore():
+    """Membuat .gitignore"""
+    content = """# Built application files
+*.apk
+*.ap_
+*.aab
+
+# Files for the ART/Dalvik VM
+*.dex
+
+# Java class files
+*.class
+
+# Generated files
+bin/
+gen/
+out/
+release/
+
+# Gradle files
+.gradle/
+build/
+
+# Local configuration file
+local.properties
+
+# Android Studio
+*.iml
+.idea/
+.DS_Store
+/captures
+.externalNativeBuild
+.cxx
+
+# NDK
+obj/
+
+# Android Profiling
+*.hprof
+"""
+    with open('.gitignore', 'w') as f:
+        f.write(content)
+    print("✓ .gitignore dibuat")
+
+def main():
+    """Main function untuk menjalankan semua fungsi"""
+    print("=" * 50)
+    print("Building Sshot Custom APK Project")
+    print("=" * 50)
+    
+    create_directory_structure()
+    create_build_gradle()
+    create_app_build_gradle()
+    create_gradle_properties()
+    create_settings_gradle()
+    create_android_manifest()
+    create_main_activity()
+    create_overlay_service()
+    create_rectangle_overlay()
+    create_layouts()
+    create_values()
+    create_github_workflow()
+    create_gradlew_files()
+    create_proguard_rules()
+    create_readme()
+    create_gitignore()
+    
+    print("=" * 50)
+    print("✅ SEMUA FILE BERHASIL DIBUAT!")
+    print("=" * 50)
+    print("\nLangkah selanjutnya:")
+    print("1. Jalankan: python scripts/build_apk.py")
+    print("2. Download Gradle wrapper: gradle wrapper")
+    print("3. Build APK: ./gradlew assembleDebug")
+    print("4. APK ada di: app/build/outputs/apk/debug/")
+    print("\nAtau push ke GitHub untuk auto-build via Actions")
+    print("=" * 50)
+
 if __name__ == "__main__":
-    create_screenshot_app()
+    main()
