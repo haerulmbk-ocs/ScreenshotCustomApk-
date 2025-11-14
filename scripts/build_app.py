@@ -22,7 +22,7 @@ def create_screenshot_app():
         os.makedirs(directory, exist_ok=True)
         print(f"📁 Created directory: {directory}")
     
-    # Buat semua file - PENTING: semua fungsi harus ada!
+    # Buat semua file
     create_main_activity()
     create_floating_window_service()
     create_overlay_canvas()
@@ -37,9 +37,12 @@ def create_screenshot_app():
     create_settings_gradle()
     create_gradle_wrapper_properties()
     create_gradle_wrapper()
+    create_gradle_wrapper_jar()  # TAMBAH INI
+    create_proguard_rules()      # TAMBAH INI
     create_strings_xml()
     create_colors_xml()
     create_ic_launcher()
+    create_ic_launcher_foreground()  # TAMBAH INI
     create_readme()
     
     print("\n✅ Semua file dan folder berhasil dibuat!")
@@ -1154,10 +1157,29 @@ zipStorePath=wrapper/dists
     print(f"📄 Created file: {file_path}")
 
 def create_gradle_wrapper():
-    # Create empty file for gradle wrapper
+    # Create proper gradlew file
+    gradlew_content = '''#!/usr/bin/env bash
+
+##############################################################################
+##
+##  Gradle start up script for UN*X
+##
+##############################################################################
+
+# Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
+DEFAULT_JVM_OPTS='"-Xmx64m" "-Xms64m"'
+
+# For Cygwin or MSYS, switch paths to Windows format before running java
+if [ "$(uname -o)" = "Cygwin" ] || [ "$(uname -o)" = "Msys" ]; then
+    [ -n "$JAVA_HOME" ] && JAVA_HOME=$(cygpath --path --mixed "$JAVA_HOME")
+fi
+
+exec "$JAVACMD" "$@"
+'''
+    
     file_path = 'ScreenshotApp/gradlew'
     with open(file_path, 'w') as f:
-        f.write('')
+        f.write(gradlew_content)
     os.chmod(file_path, 0o755)
     print(f"📄 Created file: {file_path}")
 
@@ -1247,6 +1269,56 @@ ScreenshotApp/
     with open(file_path, 'w', encoding='utf-8') as f:
         f.write(content)
     print(f"📄 Created file: {file_path}")
+def create_gradle_wrapper_jar():
+    # Create minimal gradle-wrapper.jar file (empty, will be downloaded by gradle)
+    file_path = 'ScreenshotApp/gradle/wrapper/gradle-wrapper.jar'
+    with open(file_path, 'wb') as f:
+        f.write(b'')  # Empty file, gradle will download the real one
+    print(f"📄 Created file: {file_path}")
 
+def create_proguard_rules():
+    content = '''# Add project specific ProGuard rules here.
+# You can control the set of applied configuration files using the
+# proguardFiles setting in build.gradle.
+#
+# For more details, see
+#   http://developer.android.com/guide/developing/tools/proguard.html
+
+# If your project uses WebView with JS, uncomment the following
+# and specify the fully qualified class name to the JavaScript interface
+# class:
+#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
+#   public *;
+#}
+
+# Uncomment this to preserve the line number information for
+# debugging stack traces.
+#-keepattributes SourceFile,LineNumberTable
+
+# If you keep the line number information, uncomment this to
+# hide the original source file name.
+#-renamesourcefileattribute SourceFile
+'''
+    
+    file_path = 'ScreenshotApp/app/proguard-rules.pro'
+    with open(file_path, 'w', encoding='utf-8') as f:
+        f.write(content)
+    print(f"📄 Created file: {file_path}")
+
+def create_ic_launcher_foreground():
+    content = '''<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+  <path
+      android:fillColor="#FFFFFF"
+      android:pathData="M12,2A10,10 0,0 0,2 12A10,10 0,0 0,12 22A10,10 0,0 0,22 12A10,10 0,0 0,12 2Z"/>
+</vector>'''
+    
+    file_path = 'ScreenshotApp/app/src/main/res/drawable/ic_launcher_foreground.xml'
+    with open(file_path, 'w', encoding='utf-8') as f:
+        f.write(content)
+    print(f"📄 Created file: {file_path}")
 if __name__ == "__main__":
     create_screenshot_app()
