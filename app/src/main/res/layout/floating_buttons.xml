@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#AA000000"
+    android:padding="8dp">
+
+    <ImageView
+        android:id="@+id/mainButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@android:drawable/ic_menu_camera"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:scaleType="centerInside"/>
+
+    <LinearLayout
+        android:id="@+id/buttonsContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:layout_marginTop="8dp">
+
+        <Button
+            android:id="@+id/btnCrop"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:text="Crop"
+            android:textSize="12sp"
+            android:layout_marginBottom="4dp"/>
+
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:text="Save"
+            android:textSize="12sp"
+            android:layout_marginBottom="4dp"/>
+
+        <Button
+            android:id="@+id/btnName"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:text="Name"
+            android:textSize="12sp"
+            android:layout_marginBottom="4dp"/>
+
+        <Button
+            android:id="@+id/btnSettings"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:text="Settings"
+            android:textSize="12sp"
+            android:layout_marginBottom="4dp"/>
+
+        <Button
+            android:id="@+id/btnClose"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:text="Close"
+            android:textSize="12sp"/>
+
+    </LinearLayout>
+
+</LinearLayout>
