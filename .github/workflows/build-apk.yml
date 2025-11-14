@@ -20,10 +20,17 @@ jobs:
     - name: Generate Project
       run: python scripts/build_app.py
       
+    - name: Download Gradle Wrapper
+      run: |
+        cd ScreenshotApp
+        # Download actual gradle wrapper if our generated one doesn't work
+        wget -O gradle/wrapper/gradle-wrapper.jar https://github.com/gradle/gradle/raw/master/gradle/wrapper/gradle-wrapper.jar || echo "Download failed, using generated version"
+      
     - name: Build APK
       run: |
         cd ScreenshotApp
         chmod +x gradlew
+        ./gradlew --version
         ./gradlew assembleDebug
         
     - name: Upload APK
