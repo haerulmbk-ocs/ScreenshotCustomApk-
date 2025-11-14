@@ -2,9 +2,9 @@ name: Build Android APK
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main ]
 
 jobs:
   build:
@@ -17,7 +17,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.x'
+        python-version: '3.9'
         
     - name: Set up JDK 17
       uses: actions/setup-java@v4
@@ -25,47 +25,61 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         
+    - name: Debug - List files before generation
+      run: |
+        echo "📂 Files before generation:"
+        ls -la
+        echo "📁 Scripts folder:"
+        ls -la scripts/
+      
     - name: Generate Android Project
       run: |
-        echo "📱 Generating Android project..."
+        echo "🔧 Generating Android project..."
         python scripts/build_app.py
-        echo "✅ Project generated successfully"
+        echo "✅ Project generation completed"
+      
+    - name: Debug - Check generated project structure
+      run: |
+        echo "📂 Project structure after generation:"
+        find ScreenshotApp -type f -name "*.kt" -o -name "*.xml" -o -name "*.gradle" | head -20
+        echo "📁 Top level ScreenshotApp:"
         ls -la ScreenshotApp/
+        echo "📁 App folder:"
+        ls -la ScreenshotApp/app/ || echo "App folder not found!"
       
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
       
-    - name: Make gradlew executable
+    - name: Debug - Check Android SDK
       run: |
-        cd ScreenshotApp
-        chmod +x ./gradlew
-        ls -la
+        echo "📱 Android SDK info:"
+        which sdkmanager || echo "sdkmanager not found"
+        which adb || echo "adb not found"
       
     - name: Build APK with Gradle
       run: |
         cd ScreenshotApp
         echo "🔨 Building APK..."
-        ./gradlew assembleDebug --no-daemon --stacktrace
-        echo "✅ Build completed"
-        
-    - name: List build outputs
-      run: |
-        cd ScreenshotApp
-        find . -name "*.apk" -type f
-        ls -la app/build/outputs/apk/debug/
+        chmod +x ./gradlew
+        ./gradlew tasks --all || echo "Gradle tasks failed"
+        ./gradlew assembleDebug --stacktrace --info
+        echo "🔍 Build result:"
+        find . -name "*.apk" -type f || echo "No APK files found"
       
     - name: Upload APK Artifact
+      if: success()
       uses: actions/upload-artifact@v4
       with:
         name: screenshot-app-apk
         path: ScreenshotApp/app/build/outputs/apk/debug/app-debug.apk
         retention-days: 30
         
-    - name: Upload Build Logs
-      if: always()
+    - name: Upload Build Reports
+      if: failure()
       uses: actions/upload-artifact@v4
       with:
-        name: build-logs
+        name: build-reports
         path: |
           ScreenshotApp/app/build/reports/
+          ScreenshotApp/build/reports/
         retention-days: 15
