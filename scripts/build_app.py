@@ -1,3 +1,5 @@
+
+
 import os
 import shutil
 
@@ -21,8 +23,8 @@ def create_screenshot_app():
         os.makedirs(directory, exist_ok=True)
         print(f"📁 Created directory: {directory}")
     
-    # Buat semua file
-    create_gradle_properties()  # HARUS DITAMBAHKAN
+    # Buat semua file - HAPUS create_gradle_wrapper_jar()
+    create_gradle_properties()
     create_main_activity()
     create_floating_window_service()
     create_overlay_canvas()
@@ -37,7 +39,7 @@ def create_screenshot_app():
     create_settings_gradle()
     create_gradle_wrapper_properties()
     create_gradle_wrapper()
-    create_gradle_wrapper_jar()
+    # create_gradle_wrapper_jar()  # HAPUS BARIS INI
     create_proguard_rules()
     create_strings_xml()
     create_colors_xml()
@@ -59,9 +61,20 @@ android.nonTransitiveRClass=false'''
         f.write(content)
     print(f"📄 Created file: {file_path}")
 
-
-
-# === SEMUA FUNGSI CREATE HARUS DIPERTAHANKAN ===
+def create_gradle_wrapper_properties():
+    # PERBAIKI: Gunakan raw string atau double backslash
+    content = r'''distributionBase=GRADLE_USER_HOME
+distributionPath=wrapper/dists
+distributionUrl=https\://services.gradle.org/distributions/gradle-7.5-bin.zip
+networkTimeout=10000
+zipStoreBase=GRADLE_USER_HOME
+zipStorePath=wrapper/dists
+'''
+    
+    file_path = 'ScreenshotApp/gradle/wrapper/gradle-wrapper.properties'
+    with open(file_path, 'w', encoding='utf-8') as f:
+        f.write(content)
+    print(f"📄 Created file: {file_path}")
 
 def create_main_activity():
     content = '''package com.example.screenshotapp
