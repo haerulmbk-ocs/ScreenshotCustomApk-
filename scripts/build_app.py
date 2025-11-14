@@ -1170,25 +1170,172 @@ zipStorePath=wrapper/dists
     print(f"📄 Created file: {file_path}")
 
 def create_gradle_wrapper():
-    gradlew_content = '''#!/bin/sh
-DEFAULT_JVM_OPTS="-Xmx64m -Xms64m"
+    gradlew_content = '''#!/usr/bin/env bash
 
+##############################################################################
+##
+##  Gradle start up script for UN*X
+##
+##############################################################################
+
+# Attempt to set APP_HOME
+# Resolve links: $0 may be a link
+PRG="$0"
+# Need this for relative symlinks.
+while [ -h "$PRG" ] ; do
+    ls=`ls -ld "$PRG"`
+    link=`expr "$ls" : '.*-> \\(.*\\)$'`
+    if expr "$link" : '/.*' > /dev/null; then
+        PRG="$link"
+    else
+        PRG=`dirname "$PRG"`"/$link"
+    fi
+done
+SAVED="`pwd`"
+cd "`dirname \"$PRG\"`/" >/dev/null
+APP_HOME="`pwd -P`"
+cd "$SAVED" >/dev/null
+
+APP_NAME="Gradle"
+APP_BASE_NAME=`basename "$0"`
+
+# Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
+DEFAULT_JVM_OPTS='"-Xmx64m" "-Xms64m"'
+
+# Use the maximum available, or set MAX_FD != -1 to use that value.
+MAX_FD="maximum"
+
+warn () {
+    echo "$*"
+}
+
+die () {
+    echo
+    echo "$*"
+    echo
+    exit 1
+}
+
+# OS specific support (must be 'true' or 'false').
+cygwin=false
+msys=false
+darwin=false
+nonstop=false
+case "`uname`" in
+  CYGWIN* )
+    cygwin=true
+    ;;
+  Darwin* )
+    darwin=true
+    ;;
+  MINGW* )
+    msys=true
+    ;;
+  NONSTOP* )
+    nonstop=true
+    ;;
+esac
+
+CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
+
+# Determine the Java command to use to start the JVM.
 if [ -n "$JAVA_HOME" ] ; then
-    JAVACMD="$JAVA_HOME/bin/java"
+    if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
+        # IBM's JDK on AIX uses strange locations for the executables
+        JAVACMD="$JAVA_HOME/jre/sh/java"
+    else
+        JAVACMD="$JAVA_HOME/bin/java"
+    fi
+    if [ ! -x "$JAVACMD" ] ; then
+        die "ERROR: JAVA_HOME is set to an invalid directory: $JAVA_HOME
+
+Please set the JAVA_HOME variable in your environment to match the
+location of your Java installation."
+    fi
 else
     JAVACMD="java"
+    which java >/dev/null 2>&1 || die "ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH.
+
+Please set the JAVA_HOME variable in your environment to match the
+location of your Java installation."
 fi
 
-exec "$JAVACMD" $DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS \\
-    -classpath "gradle/wrapper/gradle-wrapper.jar" \\
-    org.gradle.wrapper.GradleWrapperMain "$@"
+# Increase the maximum file descriptors if we can.
+if [ "$cygwin" = "false" ] && [ "$darwin" = "false" ] && [ "$nonstop" = "false" ] ; then
+    MAX_FD_LIMIT=`ulimit -H -n`
+    if [ $? -eq 0 ] ; then
+        if [ "$MAX_FD" = "maximum" ] || [ "$MAX_FD" = "max" ] ; then
+            MAX_FD="$MAX_FD_LIMIT"
+        fi
+        ulimit -n $MAX_FD
+        if [ $? -ne 0 ] ; then
+            warn "Could not set maximum file descriptor limit: $MAX_FD"
+        fi
+    else
+        warn "Could not query maximum file descriptor limit: $MAX_FD_LIMIT"
+    fi
+fi
+
+# For Darwin, add options to specify how the application appears in the dock
+if $darwin; then
+    GRADLE_OPTS="$GRADLE_OPTS \\\"-Xdock:name=$APP_NAME\\\" \\\"-Xdock:icon=$APP_HOME/media/gradle.icns\\\""
+fi
+
+# For Cygwin or MSYS, switch paths to Windows format before running java
+if [ "$cygwin" = "true" ] || [ "$msys" = "true" ] ; then
+    APP_HOME=`cygpath --path --mixed "$APP_HOME"`
+    CLASSPATH=`cygpath --path --mixed "$CLASSPATH"`
+    JAVACMD=`cygpath --unix "$JAVACMD"`
+
+    # We build the pattern for arguments to be converted via cygpath
+    ROOTDIRSRAW=`find -L / -maxdepth 1 -mindepth 1 -type d 2>/dev/null`
+    SEP=""
+    for dir in $ROOTDIRSRAW ; do
+        ROOTDIRS="$ROOTDIRS$SEP$dir"
+        SEP="|"
+    done
+    OURCYGPATTERN="(^($ROOTDIRS))"
+    # Add a user-defined pattern to the cygpath arguments
+    if [ "$GRADLE_CYGPATTERN" != "" ] ; then
+        OURCYGPATTERN="$OURCYGPATTERN|($GRADLE_CYGPATTERN)"
+    fi
+    # Now convert the arguments
+    for i do
+        CHECK=`echo "$i"|egrep -c "$OURCYGPATTERN" -`
+        if [ $CHECK -ne 0 ]; then
+            eval `echo args$i`=`cygpath --path --ignore --mixed "$i"`
+        else
+            eval `echo args$i`="\"$i\""
+        fi
+    done
+    # Roll the args list around exactly as many times as the number of
+    # args, so each arg winds up back in the $1, $2, etc. position.
+    i=0
+    for arg in "$@" ; do
+        eval `echo arg$i`="\"$arg\""
+        i=$((i+1))
+    done
+    i=0
+    for arg in "$@" ; do
+        eval `echo arg$i`="\"args$arg\""
+        i=$((i+1))
+    done
+    i=0
+    for arg in "$@" ; do
+        eval `echo arg$i`="\"args$arg\""
+        i=$((i+1))
+    done
+    rm -f args
+fi
+
+exec "$JAVACMD" "$@"
 '''
     
     file_path = 'ScreenshotApp/gradlew'
     with open(file_path, 'w', newline='\n') as f:
         f.write(gradlew_content)
     os.chmod(file_path, 0o755)
-
+    print(f"📄 Created file: {file_path}")
 def create_strings_xml():
     content = '''<resources>
     <string name="app_name">Screenshot App</string>
@@ -1276,21 +1423,7 @@ ScreenshotApp/
         f.write(content)
     print(f"📄 Created file: {file_path}")
 
-def create_gradle_wrapper_jar():
-    # Create a minimal valid JAR file for gradle wrapper
-    # This is a minimal ZIP structure that represents an empty JAR
-    jar_content = bytes([
-        0x50, 0x4B, 0x03, 0x04, 0x0A, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x50, 0x4B, 0x01, 0x02, 0x1E, 0x03, 0x0A, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-    ])
-    
-    file_path = 'ScreenshotApp/gradle/wrapper/gradle-wrapper.jar'
-    with open(file_path, 'wb') as f:
-        f.write(jar_content)
-    print(f"📄 Created file: {file_path}")
+
 
 def create_proguard_rules():
     content = '''# Add project specific ProGuard rules here.
