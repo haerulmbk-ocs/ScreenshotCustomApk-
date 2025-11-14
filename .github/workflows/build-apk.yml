@@ -21,10 +21,9 @@ jobs:
       run: python scripts/build_app.py
       
     - name: Download Gradle Wrapper
-      run: |
-        cd ScreenshotApp
-        # Download actual gradle wrapper if our generated one doesn't work
-        wget -O gradle/wrapper/gradle-wrapper.jar https://github.com/gradle/gradle/raw/master/gradle/wrapper/gradle-wrapper.jar || echo "Download failed, using generated version"
+  run: |
+    cd ScreenshotApp
+    wget -O gradle/wrapper/gradle-wrapper.jar https://raw.githubusercontent.com/gradle/gradle/v7.5.0/gradle/wrapper/gradle-wrapper.jar
       
     - name: Build APK
       run: |
