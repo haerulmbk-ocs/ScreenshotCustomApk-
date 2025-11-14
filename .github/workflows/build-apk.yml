@@ -20,19 +20,19 @@ jobs:
     - name: Generate Project
       run: python scripts/build_app.py
       
-    - name: Download Gradle Wrapper (Fixed)
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+      
+    - name: Download Gradle Wrapper Properly
       run: |
         cd ScreenshotApp
-        # Download the actual gradle-wrapper.jar from Gradle distribution
-        wget -q https://services.gradle.org/distributions/gradle-7.5-bin.zip
-        unzip -q -j gradle-7.5-bin.zip gradle-7.5/lib/gradle-wrapper.jar -d gradle/wrapper/
-        rm gradle-7.5-bin.zip
-        echo "✅ gradle-wrapper.jar downloaded successfully"
+        # Download the actual gradle-wrapper.jar
+        wget -q https://github.com/gradle/gradle/raw/v7.5.0/gradle/wrapper/gradle-wrapper.jar -O gradle/wrapper/gradle-wrapper.jar
+        chmod +x gradlew
       
     - name: Build APK
       run: |
         cd ScreenshotApp
-        chmod +x gradlew
         ./gradlew --version
         ./gradlew assembleDebug
         
