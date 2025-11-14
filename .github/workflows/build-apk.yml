@@ -23,11 +23,11 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
       
-    - name: Build APK
+    - name: Build with Gradle Wrapper
       run: |
         cd ScreenshotApp
         chmod +x gradlew
-        ./gradlew --version
+        # Ini akan otomatis mendownload gradle-wrapper jika diperlukan
         ./gradlew assembleDebug
         
     - name: Upload APK
