@@ -2,100 +2,32 @@ name: Build Android APK
 
 on:
   push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
-        
+    - uses: actions/checkout@v4
+    
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'temurin'
         
-    - name: Generate Android Project
-      run: |
-        echo "🔧 Generating Android project..."
-        python scripts/build_app.py
-        echo "✅ Project generation completed"
+    - name: Generate Project
+      run: python scripts/build_app.py
       
-    - name: Debug - Check generated files
-      run: |
-        echo "📂 Checking generated project structure..."
-        find ScreenshotApp -name "*.kt" | head -10
-        find ScreenshotApp -name "*.xml" | head -10
-        find ScreenshotApp -name "*.gradle" | head -10
-        echo "📁 Root files:"
-        ls -la ScreenshotApp/
-      
-    - name: Create missing Gradle files
+    - name: Build APK
       run: |
         cd ScreenshotApp
-        # Create gradle wrapper if missing
-        if [ ! -f "gradlew" ]; then
-          echo "📝 Creating gradlew..."
-          cat > gradlew << 'EOF'
-#!/usr/bin/env bash
-##############################################################################
-##  Gradle start up script for UN*X
-##############################################################################
-# Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
-DEFAULT_JVM_OPTS='"-Xmx64m" "-Xms64m"'
-# For Cygwin or MSYS, switch paths to Windows format before running java
-if [ "$(uname -o)" = "Cygwin" ] || [ "$(uname -o)" = "Msys" ]; then
-    [ -n "$JAVA_HOME" ] && JAVA_HOME=$(cygpath --path --mixed "$JAVA_HOME")
-fi
-# Collect all arguments for the java command
-set -- $DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS "\"-Dorg.gradle.appname=$APP_BASE_NAME\"" -classpath "\"$CLASSPATH\"" org.gradle.wrapper.GradleWrapperMain "$APP_ARGS"
-exec "$JAVACMD" "$@"
-EOF
-          chmod +x gradlew
-        fi
+        chmod +x gradlew
+        ./gradlew assembleDebug
         
-        # Create gradle wrapper jar directory if missing
-        mkdir -p gradle/wrapper
-      
-    - name: Build APK with Gradle
-      run: |
-        cd ScreenshotApp
-        echo "🔨 Building APK..."
-        chmod +x ./gradlew
-        
-        # First try to check gradle setup
-        ./gradlew --version || echo "Gradle version check failed"
-        
-        # Then build the APK
-        ./gradlew assembleDebug --stacktrace --no-daemon
-        
-        echo "🔍 Build results:"
-        find . -name "*.apk" -type f
-      
-    - name: Upload APK Artifact
-      if: success()
+    - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: screenshot-app-apk
-        path: ScreenshotApp/app/build/outputs/apk/debug/app-debug.apk
-        retention-days: 30
-        
-    - name: Upload Build Reports
-      if: failure()
-      uses: actions/upload-artifact@v4
-      with:
-        name: build-reports
-        path: |
-          ScreenshotApp/app/build/reports/
-          ScreenshotApp/build/reports/
-        retention-days: 15
+        name: app-apk
+        path: ScreenshotApp/app/build/outputs/apk/debug/*.apk
