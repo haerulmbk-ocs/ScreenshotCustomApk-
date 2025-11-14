@@ -4,7 +4,6 @@ import shutil
 def create_screenshot_app():
     print("🚀 Membuat project Android Screenshot App...")
     
-    # Jangan hapus file di GitHub Actions, hanya buat struktur
     if not os.path.exists('ScreenshotApp'):
         os.makedirs('ScreenshotApp')
     
@@ -23,6 +22,7 @@ def create_screenshot_app():
         print(f"📁 Created directory: {directory}")
     
     # Buat semua file
+    create_gradle_properties()  # HARUS DITAMBAHKAN
     create_main_activity()
     create_floating_window_service()
     create_overlay_canvas()
@@ -37,16 +37,29 @@ def create_screenshot_app():
     create_settings_gradle()
     create_gradle_wrapper_properties()
     create_gradle_wrapper()
-    create_gradle_wrapper_jar()  # TAMBAH INI
-    create_proguard_rules()      # TAMBAH INI
+    create_gradle_wrapper_jar()
+    create_proguard_rules()
     create_strings_xml()
     create_colors_xml()
     create_ic_launcher()
-    create_ic_launcher_foreground()  # TAMBAH INI
+    create_ic_launcher_foreground()
     create_readme()
     
     print("\n✅ Semua file dan folder berhasil dibuat!")
     print("📁 Struktur project lengkap di folder: ScreenshotApp/")
+
+def create_gradle_properties():
+    content = '''android.useAndroidX=true
+android.enableJetifier=true
+org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+android.nonTransitiveRClass=false'''
+    
+    file_path = 'ScreenshotApp/gradle.properties'
+    with open(file_path, 'w', encoding='utf-8') as f:
+        f.write(content)
+    print(f"📄 Created file: {file_path}")
+
+
 
 # === SEMUA FUNGSI CREATE HARUS DIPERTAHANKAN ===
 
