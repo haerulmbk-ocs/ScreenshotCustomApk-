@@ -1,4 +1,4 @@
-package com.sshotcustom.app
+package com.example.screenshotapp
 
 import android.Manifest
 import android.content.Intent
@@ -13,7 +13,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
 class MainActivity : AppCompatActivity() {
-
+    
     private val PERMISSION_REQUEST_CODE = 100
     private val OVERLAY_PERMISSION_REQUEST_CODE = 101
 
@@ -25,6 +25,23 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkPermissions() {
+        val permissions = mutableListOf<String>()
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) 
+            != PackageManager.PERMISSION_GRANTED) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            }
+        }
+
+        if (permissions.isNotEmpty()) {
+            ActivityCompat.requestPermissions(this, permissions.toTypedArray(), PERMISSION_REQUEST_CODE)
+        } else {
+            checkOverlayPermission()
+        }
+    }
+
+    private fun checkOverlayPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!Settings.canDrawOverlays(this)) {
                 val intent = Intent(
@@ -32,47 +49,22 @@ class MainActivity : AppCompatActivity() {
                     Uri.parse("package:$packageName")
                 )
                 startActivityForResult(intent, OVERLAY_PERMISSION_REQUEST_CODE)
-                return
-            }
-        }
-
-        checkStoragePermissions()
-    }
-
-    private fun checkStoragePermissions() {
-        val permissions = mutableListOf<String>()
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES)
-                != PackageManager.PERMISSION_GRANTED) {
-                permissions.add(Manifest.permission.READ_MEDIA_IMAGES)
+            } else {
+                startFloatingService()
             }
         } else {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-                permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            }
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-                permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE)
-            }
-        }
-
-        if (permissions.isNotEmpty()) {
-            ActivityCompat.requestPermissions(this, permissions.toTypedArray(), PERMISSION_REQUEST_CODE)
-        } else {
-            startOverlayService()
+            startFloatingService()
         }
     }
 
-    private fun startOverlayService() {
-        val intent = Intent(this, OverlayService::class.java)
+    private fun startFloatingService() {
+        val intent = Intent(this, FloatingWindowService::class.java)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(intent)
         } else {
             startService(intent)
         }
-        Toast.makeText(this, "Floating button started", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Service dimulai", Toast.LENGTH_SHORT).show()
         finish()
     }
 
@@ -84,9 +76,9 @@ class MainActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PERMISSION_REQUEST_CODE) {
             if (grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
-                startOverlayService()
+                checkOverlayPermission()
             } else {
-                Toast.makeText(this, "Permissions required", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Permission diperlukan", Toast.LENGTH_LONG).show()
                 finish()
             }
         }
@@ -97,9 +89,9 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == OVERLAY_PERMISSION_REQUEST_CODE) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (Settings.canDrawOverlays(this)) {
-                    checkStoragePermissions()
+                    startFloatingService()
                 } else {
-                    Toast.makeText(this, "Overlay permission required", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Overlay permission diperlukan", Toast.LENGTH_LONG).show()
                     finish()
                 }
             }

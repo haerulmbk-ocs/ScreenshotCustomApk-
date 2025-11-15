@@ -1,62 +1,35 @@
-# Sshot Custom APK
+# Screenshot App dengan Floating Windows
 
-Aplikasi Android untuk screenshot custom dengan fitur crop persegi panjang.
+Aplikasi Android untuk mengambil screenshot dengan area kustom menggunakan floating windows.
 
 ## Fitur
-- Tombol floating untuk kontrol aplikasi
-- Membuat persegi panjang custom untuk crop
-- Penomoran otomatis screenshot
-- Pengaturan nama file output
-- Pengaturan direktori penyimpanan
+- Floating windows dengan tombol kontrol
+- Overlay canvas untuk menggambar persegi panjang
+- Drag & resize rectangle
+- Penomoran otomatis (001, 002, dst)
+- Double click untuk renumber dan delete
+- Screenshot dengan crop sesuai rectangle
+- Save gambar dengan format PNG
 
-## Build Instructions
+## Cara Install
+1. Buka project di Android Studio
+2. Build APK
+3. Install di device Android
+4. Berikan izin overlay dan storage
 
-### Local Build
-```bash
-python scripts/build_apk.py
-./gradlew assembleDebug
-```
-
-APK akan tersedia di: `app/build/outputs/apk/debug/app-debug.apk`
-
-### GitHub Actions Build
-1. Push code ke repository GitHub
-2. GitHub Actions akan otomatis build APK
-3. Download APK dari Artifacts
-
-## Permissions Required
-- SYSTEM_ALERT_WINDOW - Untuk floating overlay
-- WRITE_EXTERNAL_STORAGE - Menyimpan screenshot (Android <= 10)
-- READ_MEDIA_IMAGES - Akses media (Android >= 13)
-
-## Cara Penggunaan
-1. Buka aplikasi dan berikan permissions
-2. Klik tombol floating utama untuk expand menu
-3. Klik "Crop" untuk mulai membuat persegi panjang
-4. Klik 2 titik untuk membentuk persegi panjang
-5. Klik "Save" untuk menyimpan screenshot
-6. File disimpan dengan format: `{nama}_{nomor}.png`
-
-## Struktur Project
-```
+## Struktur File
+.
 ├── app/
-│   ├── src/main/
-│   │   ├── java/com/sshotcustom/app/
-│   │   │   ├── MainActivity.kt
-│   │   │   ├── OverlayService.kt
-│   │   │   └── RectangleOverlay.kt
-│   │   ├── res/
-│   │   │   ├── layout/
-│   │   │   └── values/
-│   │   └── AndroidManifest.xml
+│   ├── src/main/java/com/example/screenshotapp/
+│   │   ├── MainActivity.kt
+│   │   ├── FloatingWindowService.kt
+│   │   ├── OverlayCanvas.kt
+│   │   └── MediaProjectionActivity.kt
+│   ├── src/main/res/layout/
+│   │   ├── activity_main.xml
+│   │   ├── floating_buttons.xml
+│   │   ├── overlay_layout.xml
+│   │   └── dialog_name.xml
 │   └── build.gradle
-├── gradle/
-├── scripts/
-│   └── build_apk.py
-├── .github/workflows/
-│   └── build_apk.yml
-└── build.gradle
-```
-
-## License
-MIT License
+├── build.gradle
+└── settings.gradle
