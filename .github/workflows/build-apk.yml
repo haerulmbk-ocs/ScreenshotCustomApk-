@@ -32,6 +32,9 @@ jobs:
 
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
+      with:
+        api-level: 33
+        build-tools: 33.0.2
 
     - name: Cache Gradle Dependencies
       uses: actions/cache@v3
@@ -42,12 +45,6 @@ jobs:
         key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
         restore-keys: |
           ${{ runner.os }}-gradle-
-
-    - name: Generate Gradle Wrapper
-      run: |
-        if [ ! -f "gradlew" ]; then
-          gradle wrapper --gradle-version 8.2
-        fi
 
     - name: Make gradlew executable
       run: chmod +x gradlew
@@ -85,7 +82,6 @@ jobs:
       if: github.event.inputs.release_type == 'release' && github.event_name != 'pull_request'
       run: |
         echo "Release signing would go here"
-        # Uncomment and configure when you have signing keys
         # keytool -genkey -v -keystore my-release-key.keystore ...
         # jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 ...
 
